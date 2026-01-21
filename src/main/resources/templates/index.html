@@ -2,9 +2,80 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Maple Jubo</title>
+    <title>Maple Jubo - 캐릭터 검색</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .search-box { margin-bottom: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px; text-align: center;}
+        .search-box input { padding: 10px; width: 200px; }
+        .search-box button { padding: 10px 20px; background: #ff9900; color: white; border: none; cursor: pointer; border-radius: 4px;}
+        .character-info { border: 1px solid #ddd; padding: 20px; border-radius: 8px; display: flex; align-items: center; gap: 20px;}
+        .character-img { 
+            width: 150px; 
+            height: 150px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            margin-right: 20px;
+        }
+        .character-img img { 
+            width: 144px;
+            height: 144px;
+            transform: scale(2.2); /* 다시 2.2배로 조정 */
+            image-rendering: pixelated; 
+            image-rendering: -moz-crisp-edges;
+            pointer-events: none;
+            user-select: none;
+        }
+        .character-details table { width: 100%; }
+        .character-details th { text-align: left; width: 100px; color: #666; }
+        .error-message { color: red; font-weight: bold; text-align: center; margin: 10px 0;}
+        .footer { margin-top: 50px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px;}
+    </style>
 </head>
 <body>
-    <h1>홈화면 TEST</h1>
+
+    <h1 style="text-align: center;">Maple Jubo 주간보스 정산</h1>
+
+    <!-- 검색창 -->
+    <div class="search-box">
+        <form action="/weekly-boss/search" method="get">
+            <input type="text" name="nickname" placeholder="캐릭터 닉네임 입력" th:value="${searchedNickname}" required>
+            <button type="submit">검색</button>
+        </form>
+    </div>
+
+    <!-- 에러 메시지 -->
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+    <!-- 검색 결과 -->
+    <div th:if="${character}" class="character-info">
+        <div class="character-img">
+            <img th:src="${character.characterImage}" alt="Character Image">
+        </div>
+        <div class="character-details">
+            <h2><span th:text="${character.characterName}">닉네임</span></h2>
+            <table>
+                <tr>
+                    <th>월드</th>
+                    <td th:text="${character.worldName}">리부트</td>
+                </tr>
+                <tr>
+                    <th>직업</th>
+                    <td th:text="${character.characterClass}">아델</td>
+                </tr>
+                <tr>
+                    <th>레벨</th>
+                    <td th:text="${character.characterLevel}">275</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Data based on NEXON Open API
+    </div>
+
 </body>
 </html>
