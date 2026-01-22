@@ -3,33 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <title>Maple Jubo - 캐릭터 검색</title>
+    <!-- Fonts -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .search-box { margin-bottom: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px; text-align: center;}
-        .search-box input { padding: 10px; width: 200px; }
-        .search-box button { padding: 10px 20px; background: #ff9900; color: white; border: none; cursor: pointer; border-radius: 4px;}
-        .character-info { border: 1px solid #ddd; padding: 20px; border-radius: 8px; display: flex; align-items: center; gap: 20px;}
+        body { 
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif; 
+            max-width: 1280px; /* Match max-width requirement for main container if desired, or keep centered */
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        
+        h1 { text-align: center; margin-bottom: 30px; }
+
+        .search-box { 
+            margin-bottom: 30px; 
+            padding: 30px; 
+            background: #f8f9fa; 
+            border-radius: 12px; 
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .search-box input { 
+            padding: 12px 15px; 
+            width: 250px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 16px;
+        }
+        .search-box button { 
+            padding: 12px 25px; 
+            background: #ff9900; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .search-box button:hover { background: #e68a00; }
+
+        /* Character Info Section */
+        .character-info { 
+            max-width: 1280px; 
+            /* Height auto to fit content vertically */
+            min-height: 200px; 
+            border: 1px solid #e9ecef; 
+            padding: 30px 40px; 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; /* Vertical layout */
+            align-items: flex-start; /* Left align */
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            background: white;
+            position: relative; /* For absolute positioning of settings button */
+            margin-bottom: 30px; /* Space between stacked cards */
+        }
+
+        /* Top: Character Image */
         .character-img { 
             width: 150px; 
             height: 150px; 
+            overflow: hidden;
             display: flex; 
             align-items: center; 
             justify-content: center;
-            margin-right: 20px;
+            /* No background or border */
         }
         .character-img img { 
-            width: 144px;
-            height: 144px;
-            transform: scale(2.2); /* 다시 2.2배로 조정 */
+            transform: scale(2.0); 
             image-rendering: pixelated; 
-            image-rendering: -moz-crisp-edges;
-            pointer-events: none;
-            user-select: none;
         }
-        .character-details table { width: 100%; }
-        .character-details th { text-align: left; width: 100px; color: #666; }
-        .error-message { color: red; font-weight: bold; text-align: center; margin: 10px 0;}
-        .footer { margin-top: 50px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px;}
+
+        .info-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Middle: Details Grid (Text Only) */
+        .character-details-grid {
+            display: flex;
+            gap: 30px; /* Space between Job/Level/Guild columns */
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            /* No border, no background */
+        }
+        
+        .detail-label {
+            font-size: 13px;
+            color: #adb5bd; /* Light grey */
+            font-weight: 500;
+        }
+        .detail-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #343a40;
+        }
+
+        /* Bottom: Server + Nickname */
+        .character-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .server-badge {
+            background: #f1f3f5;
+            color: #495057;
+            padding: 4px 10px;
+            border-radius: 15px; /* Pill shape */
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .character-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #212529;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Settings Button */
+        .btn-settings {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 8px 16px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            color: #495057;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-settings:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: #333; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .error-message { 
+            color: #d32f2f; 
+            font-weight: bold; 
+            text-align: center; 
+            margin: 20px 0;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 6px;
+        }
+        .footer { 
+            margin-top: 50px; 
+            font-size: 12px; 
+            color: #999; 
+            text-align: center; 
+        }
     </style>
 </head>
 <body>
@@ -49,33 +245,78 @@
         <p th:text="${error}"></p>
     </div>
 
-    <!-- 검색 결과 -->
-    <div th:if="${character}" class="character-info">
-        <div class="character-img">
-            <img th:src="${character.characterImage}" alt="Character Image">
+    <!-- 검색 결과 리스트 -->
+    <div id="results-list">
+        <div th:each="character : ${characterList}" class="character-info">
+            <!-- Settings Button -->
+            <button class="btn-settings" onclick="openModal()">보스 설정</button>
+            
+            <div class="character-img">
+                <img th:src="${character.characterImage}" alt="Character Image">
+            </div>
+            
+            <div class="info-container">
+                <!-- Details: Job, Level, Guild (Middle) -->
+                <div class="character-details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">직업</span>
+                        <span class="detail-value" th:text="${character.characterClass}">직업명</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">레벨</span>
+                        <span class="detail-value" th:text="${character.characterLevel}">000</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">길드</span>
+                        <span class="detail-value" th:text="${character.characterGuildName != null ? character.characterGuildName : '-'}">-</span>
+                    </div>
+                </div>
+
+                <!-- Header: Server + Name (Bottom) -->
+                <div class="character-header">
+                    <!-- 아이콘이 없으므로 텍스트로 대체 -->
+                    <span class="server-badge" th:text="${character.worldName}">월드</span>
+                    <span class="character-name" th:text="${character.characterName}">닉네임</span>
+                </div>
+            </div>
         </div>
-        <div class="character-details">
-            <h2><span th:text="${character.characterName}">닉네임</span></h2>
-            <table>
-                <tr>
-                    <th>월드</th>
-                    <td th:text="${character.worldName}">리부트</td>
-                </tr>
-                <tr>
-                    <th>직업</th>
-                    <td th:text="${character.characterClass}">아델</td>
-                </tr>
-                <tr>
-                    <th>레벨</th>
-                    <td th:text="${character.characterLevel}">275</td>
-                </tr>
-            </table>
+    </div>
+    
+    <!-- Modal -->
+    <div id="bossSettingsModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span class="modal-title">주간 보스 설정</span>
+                <button class="close-btn" onclick="closeModal(event)">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>여기에 주간 보스 선택 기능이 들어갑니다.</p>
+                <!-- 추후 체크박스 리스트 등으로 구현 -->
+            </div>
         </div>
     </div>
 
     <div class="footer">
         Data based on NEXON Open API
     </div>
+    
+    <script>
+        function openModal() {
+            document.getElementById('bossSettingsModal').style.display = 'flex';
+        }
+
+        function closeModal(event) {
+            // 버튼 클릭 시 event가 전달되지 않을 수도 있으므로 체크
+            document.getElementById('bossSettingsModal').style.display = 'none';
+        }
+        
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                document.getElementById('bossSettingsModal').style.display = 'none';
+            }
+        });
+    </script>
 
 </body>
 </html>
