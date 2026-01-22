@@ -23,6 +23,9 @@ public class CharacterBasicResponse {
 
     @JsonProperty("character_image")
     private String characterImage;
+
+    @JsonProperty("character_guild_name")
+    private String characterGuildName;
     
     // 필요한 필드가 더 있다면 여기에 추가하면 됩니다.
     // 예: character_guild_name, character_gender 등
